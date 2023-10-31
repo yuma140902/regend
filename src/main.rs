@@ -9,7 +9,7 @@ fn main() {
     let reg = Or(vec![cat_char("00"), cat_char("11")]);
     let mut env = GlobalEnv::default();
     let nfa = reg.to_nfa(&mut env);
-    println!("{reg}");
+    println!("regexpr: {reg}");
     println!("{nfa}");
     println!("edge(1, ε) = {:?}", nfa.edge(1, 'ε'));
     {
@@ -21,4 +21,8 @@ fn main() {
             nfa.dfa_edge(&nfa.closure(&t), '0')
         );
     }
+
+    let dfa = nfa.to_dfa(&['0', '1']);
+    println!();
+    println!("{dfa}");
 }

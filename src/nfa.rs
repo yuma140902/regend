@@ -1,6 +1,9 @@
-use std::{collections::BTreeSet, fmt::Display};
+use std::{
+    collections::{BTreeSet, HashMap, VecDeque},
+    fmt::Display,
+};
 
-use crate::dfa;
+use crate::dfa::{self, Dfa};
 
 pub type State = i32;
 
@@ -38,7 +41,7 @@ pub struct Nfa {
 impl Display for Rule {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_fmt(format_args!(
-            "{} -- {} --> {}",
+            "{} -- '{}' --> {}",
             self.from, self.alphabet, self.to
         ))
     }
@@ -52,7 +55,7 @@ impl Display for Nfa {
         for rule in &self.rules {
             f.write_fmt(format_args!("{}\n", rule))?;
         }
-        f.write_str("=========\n")
+        f.write_str("=========")
     }
 }
 
@@ -68,6 +71,12 @@ impl Nfa {
             ret.insert(t);
         }
         ret
+    }
+
+    pub fn closure_(&self, state: State) -> BTreeSet<State> {
+        let mut set = BTreeSet::new();
+        set.insert(state);
+        self.closure(&set)
     }
 
     pub fn closure(&self, states: &BTreeSet<State>) -> BTreeSet<State> {
@@ -93,7 +102,89 @@ impl Nfa {
         self.closure(&e)
     }
 
-    pub fn to_dfa(&self, env: &mut dfa::GlobalEnv) {
-        todo!()
+    pub fn to_dfa(&self, alphabets: &[char]) -> Dfa {
+        let mut states = DfaStateProvider::default();
+        let mut queue = VecDeque::new();
+        let mut rules = Vec::new();
+
+        let start_closure = self.closure_(self.start);
+
+        queue.push_back(start_closure);
+
+        while let Some(nfa_states) = queue.pop_front() {
+            let from = states.to_dfa_state(nfa_states.clone());
+            for c in alphabets {
+                let next_nfa_states = self.dfa_edge(&nfa_states, *c);
+                if states.has(&next_nfa_states) {
+                    continue;
+                }
+                let to = states.to_dfa_state(next_nfa_states.clone());
+                queue.push_back(next_nfa_states);
+                rules.push(dfa::Rule {
+                    from,
+                    to,
+                    alphabet: *c,
+                });
+            }
+        }
+
+        println!();
+        println!("{states}");
+
+        Dfa {
+            start: states.to_dfa_state(self.closure_(self.start)),
+            finish_vec: states.get_dfa_finishes(self.finish),
+            rules,
+        }
+    }
+}
+
+struct DfaStateProvider {
+    states: HashMap<BTreeSet<State>, dfa::State>,
+    current: dfa::State,
+}
+
+impl Default for DfaStateProvider {
+    fn default() -> Self {
+        Self {
+            states: HashMap::new(),
+            current: 0,
+        }
+    }
+}
+
+impl DfaStateProvider {
+    pub fn has(&self, nfa_state_set: &BTreeSet<State>) -> bool {
+        self.states.contains_key(nfa_state_set)
+    }
+
+    pub fn to_dfa_state(&mut self, nfa_state_set: BTreeSet<State>) -> dfa::State {
+        if let Some(state) = self.states.get(&nfa_state_set) {
+            *state
+        } else {
+            self.current += 1;
+            self.states.insert(nfa_state_set, self.current);
+            self.current
+        }
+    }
+
+    pub fn get_dfa_finishes(&self, nfa_finish: State) -> Vec<dfa::State> {
+        let mut v = vec![];
+        for (nfa_states, dfa_state) in &self.states {
+            if nfa_states.contains(&nfa_finish) {
+                v.push(*dfa_state);
+            }
+        }
+        v
+    }
+}
+
+impl Display for DfaStateProvider {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("NFA states <=> DFA state\n")?;
+        for (nfa_states, dfa_state) in &self.states {
+            f.write_fmt(format_args!("{:?}\t{}\n", nfa_states, dfa_state))?;
+        }
+        Ok(())
     }
 }
