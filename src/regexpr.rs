@@ -38,7 +38,7 @@ impl RegExpr {
                 let start = env.new_state();
                 let finish = env.new_state();
                 let mut rules = vec![];
-                let nfa_vec: Vec<_> = v.iter().map(|r| r.to_nfa(env)).collect();
+                let mut nfa_vec: Vec<_> = v.iter().map(|r| r.to_nfa(env)).collect();
 
                 if nfa_vec.len() == 0 {
                     Nfa {
@@ -53,12 +53,15 @@ impl RegExpr {
                         alphabet: 'ε',
                     });
                     let mut i = 0;
-                    while i < nfa_vec.len() - 1 {
-                        rules.push(Rule {
-                            from: nfa_vec[i].finish,
-                            to: nfa_vec[i + 1].start,
-                            alphabet: 'ε',
-                        });
+                    while i < nfa_vec.len() {
+                        rules.append(&mut nfa_vec[i].rules);
+                        if i < nfa_vec.len() - 1 {
+                            rules.push(Rule {
+                                from: nfa_vec[i].finish,
+                                to: nfa_vec[i + 1].start,
+                                alphabet: 'ε',
+                            });
+                        }
                         i += 1;
                     }
                     rules.push(Rule {
