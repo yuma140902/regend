@@ -1,4 +1,6 @@
-use std::fmt::Display;
+use std::{collections::BTreeSet, fmt::Display};
+
+use crate::dfa;
 
 pub type State = i32;
 
@@ -51,5 +53,47 @@ impl Display for Nfa {
             f.write_fmt(format_args!("{}\n", rule))?;
         }
         f.write_str("=========\n")
+    }
+}
+
+impl Nfa {
+    pub fn edge(&self, s: State, c: char) -> BTreeSet<State> {
+        let mut ret = BTreeSet::new();
+        for t in self
+            .rules
+            .iter()
+            .filter(|r| r.from == s && r.alphabet == c)
+            .map(|r| r.to)
+        {
+            ret.insert(t);
+        }
+        ret
+    }
+
+    pub fn closure(&self, states: &BTreeSet<State>) -> BTreeSet<State> {
+        let mut t = states.clone();
+        loop {
+            let mut t_dash = t.clone();
+            for s in &t {
+                t_dash.extend(self.edge(*s, 'ε'));
+            }
+            if t.len() == t_dash.len() {
+                break;
+            }
+            t = t_dash;
+        }
+        t
+    }
+
+    pub fn dfa_edge(&self, states: &BTreeSet<State>, c: char) -> BTreeSet<State> {
+        let mut e = BTreeSet::new();
+        for s in states {
+            e.extend(self.edge(*s, c));
+        }
+        self.closure(&e)
+    }
+
+    pub fn to_dfa(&self, env: &mut dfa::GlobalEnv) {
+        todo!()
     }
 }
