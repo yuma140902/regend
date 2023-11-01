@@ -7,6 +7,7 @@ pub enum RegExpr {
     Char(char),
     Cat(Vec<RegExpr>),
     Or(Vec<RegExpr>),
+    Repeat(Box<RegExpr>),
 }
 
 pub fn cat_char(s: &str) -> RegExpr {
@@ -100,6 +101,29 @@ impl RegExpr {
                     rules,
                 }
             }
+            RegExpr::Repeat(r) => {
+                let start = env.new_state();
+                let mut rules = vec![];
+
+                let mut nfa = r.to_nfa(env);
+                rules.append(&mut nfa.rules);
+
+                rules.push(Rule {
+                    from: start,
+                    to: nfa.finish,
+                    alphabet: 'ε',
+                });
+                rules.push(Rule {
+                    from: nfa.finish,
+                    to: nfa.start,
+                    alphabet: 'ε',
+                });
+                Nfa {
+                    start,
+                    finish: nfa.finish,
+                    rules,
+                }
+            }
         }
     }
 }
@@ -121,6 +145,9 @@ impl Display for RegExpr {
                     f.write_fmt(format_args!("|{}", r))?;
                 }
                 f.write_str(")")?;
+            }
+            RegExpr::Repeat(r) => {
+                f.write_fmt(format_args!("({})*", r))?;
             }
         }
         Ok(())

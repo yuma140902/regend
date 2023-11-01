@@ -6,7 +6,53 @@ use alien::{
 };
 
 fn main() {
-    let reg = Or(vec![cat_char("00"), cat_char("11")]);
+    /*let reg = Or(vec![
+        cat_char("00"),
+        cat_char("11"),
+        Repeat(Box::new(Char('1'))),
+    ]);*/
+
+    let reg = Or(vec![
+        Cat(vec![
+            Repeat(Box::new(Or(vec![
+                cat_char("00"),
+                cat_char("11"),
+                cat_char("111111"),
+                cat_char("111000"),
+                cat_char("000111"),
+                cat_char("000000"),
+            ]))),
+            Or(vec![cat_char("111"), cat_char("000")]),
+            Repeat(Box::new(Or(vec![
+                cat_char("00"),
+                cat_char("11"),
+                cat_char("111111"),
+                cat_char("111000"),
+                cat_char("000111"),
+                cat_char("000000"),
+            ]))),
+            Or(vec![Char('0'), Char('1')]),
+        ]),
+        Cat(vec![
+            Or(vec![
+                cat_char("00"),
+                cat_char("11"),
+                cat_char("111111"),
+                cat_char("111000"),
+                cat_char("000111"),
+                cat_char("000000"),
+            ]),
+            Repeat(Box::new(Or(vec![
+                cat_char("00"),
+                cat_char("11"),
+                cat_char("111111"),
+                cat_char("111000"),
+                cat_char("000111"),
+                cat_char("000000"),
+            ]))),
+        ]),
+    ]);
+
     let mut env = GlobalEnv::default();
     let nfa = reg.to_nfa(&mut env);
     println!("regexpr: {reg}");
