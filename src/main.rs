@@ -6,13 +6,13 @@ use alien::{
 };
 
 fn main() {
-    /*let reg = Or(vec![
+    let reg = Or(vec![
         cat_char("00"),
         cat_char("11"),
         Repeat(Box::new(Char('1'))),
-    ]);*/
+    ]);
 
-    let reg = Or(vec![
+    /*let reg = Or(vec![
         Cat(vec![
             Repeat(Box::new(Or(vec![
                 cat_char("00"),
@@ -51,7 +51,7 @@ fn main() {
                 cat_char("000000"),
             ]))),
         ]),
-    ]);
+    ]);*/
 
     let mut env = GlobalEnv::default();
     let nfa = reg.to_nfa(&mut env);

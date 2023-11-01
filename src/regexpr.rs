@@ -4,6 +4,7 @@ use crate::nfa::{GlobalEnv, Nfa, Rule};
 
 #[derive(Debug)]
 pub enum RegExpr {
+    Empty,
     Char(char),
     Cat(Vec<RegExpr>),
     Or(Vec<RegExpr>),
@@ -21,6 +22,20 @@ pub fn cat_char(s: &str) -> RegExpr {
 impl RegExpr {
     pub fn to_nfa(&self, env: &mut GlobalEnv) -> Nfa {
         match self {
+            RegExpr::Empty => {
+                let start = env.new_state();
+                let finish = env.new_state();
+                let rules = vec![Rule {
+                    from: start,
+                    to: finish,
+                    alphabet: 'ε',
+                }];
+                Nfa {
+                    start,
+                    finish,
+                    rules,
+                }
+            }
             RegExpr::Char(c) => {
                 let start = env.new_state();
                 let finish = env.new_state();
@@ -131,6 +146,7 @@ impl RegExpr {
 impl Display for RegExpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            RegExpr::Empty => f.write_str("ε")?,
             RegExpr::Char(c) => f.write_fmt(format_args!("{}", c))?,
             RegExpr::Cat(v) => {
                 f.write_str("(")?;
@@ -140,10 +156,14 @@ impl Display for RegExpr {
                 f.write_str(")")?;
             }
             RegExpr::Or(v) => {
-                f.write_str("(φ")?;
-                for r in v {
-                    f.write_fmt(format_args!("|{}", r))?;
-                }
+                f.write_str("(")?;
+                f.write_fmt(format_args!(
+                    "{}",
+                    v.iter()
+                        .map(|r| format!("{}", r))
+                        .collect::<Vec<_>>()
+                        .join("|")
+                ))?;
                 f.write_str(")")?;
             }
             RegExpr::Repeat(r) => {

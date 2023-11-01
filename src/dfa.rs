@@ -1,8 +1,8 @@
-use std::fmt::Display;
+use std::{collections::BTreeSet, fmt::Display};
 
 pub type State = i32;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Rule {
     pub from: State,
     pub to: State,
@@ -22,7 +22,7 @@ impl Display for Rule {
 pub struct Dfa {
     pub start: State,
     pub finish_vec: Vec<State>,
-    pub rules: Vec<Rule>,
+    pub rules: BTreeSet<Rule>,
 }
 
 impl Display for Dfa {

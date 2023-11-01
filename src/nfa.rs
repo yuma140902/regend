@@ -105,7 +105,7 @@ impl Nfa {
     pub fn to_dfa(&self, alphabets: &[char]) -> Dfa {
         let mut states = DfaStateProvider::default();
         let mut queue = VecDeque::new();
-        let mut rules = Vec::new();
+        let mut rules = BTreeSet::new();
 
         let start_closure = self.closure_(self.start);
 
@@ -115,16 +115,17 @@ impl Nfa {
             let from = states.to_dfa_state(nfa_states.clone());
             for c in alphabets {
                 let next_nfa_states = self.dfa_edge(&nfa_states, *c);
-                if states.has(&next_nfa_states) {
-                    continue;
-                }
                 let to = states.to_dfa_state(next_nfa_states.clone());
-                queue.push_back(next_nfa_states);
-                rules.push(dfa::Rule {
+                let rule = dfa::Rule {
                     from,
                     to,
                     alphabet: *c,
-                });
+                };
+                if rules.contains(&rule) {
+                    continue;
+                }
+                rules.insert(rule);
+                queue.push_back(next_nfa_states);
             }
         }
 
