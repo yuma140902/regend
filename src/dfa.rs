@@ -27,9 +27,9 @@ pub struct Dfa {
 
 impl Display for Dfa {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        const UNDERLINE: &str = "\x1b[4m";
-        const BOLD: &str = "\x1b[1m";
-        const RESET: &str = "\x1b[0m";
+        const UNDERLINE: &str = ""; //"\x1b[4m";
+        const BOLD: &str = ""; //"\x1b[1m";
+        const RESET: &str = ""; //"\x1b[0m";
         f.write_str("== DFA ==\n")?;
         f.write_fmt(format_args!("start: {}\n", self.start))?;
         f.write_fmt(format_args!("finish_states: {:?}\n", self.finish_states))?;

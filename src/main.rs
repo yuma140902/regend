@@ -18,6 +18,17 @@ fn main() {
         Repeat(Box::new(Or(vec![cat_char("00"), cat_char("11")]))),
     ]);
 
+    let reg = Or(vec![
+        Cat(vec![
+            Or(vec![cat_char("00"), cat_char("11")]),
+            Repeat(Box::new(Or(vec![Char('0'), Char('1')]))),
+        ]),
+        Cat(vec![
+            Repeat(Box::new(Or(vec![Char('0'), Char('1')]))),
+            Or(vec![cat_char("00"), cat_char("11")]),
+        ]),
+    ]);
+
     /*let reg = Cat(vec![
         Or(vec![
             Repeat(Box::new(cat_char("00"))),
