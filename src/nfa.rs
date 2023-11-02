@@ -134,7 +134,7 @@ impl Nfa {
 
         Dfa {
             start: states.to_dfa_state(self.closure_(self.start)),
-            finish_vec: states.get_dfa_finishes(self.finish),
+            finish_states: states.get_dfa_finishes(self.finish),
             rules,
         }
     }
@@ -169,11 +169,11 @@ impl DfaStateProvider {
         }
     }
 
-    pub fn get_dfa_finishes(&self, nfa_finish: State) -> Vec<dfa::State> {
-        let mut v = vec![];
+    pub fn get_dfa_finishes(&self, nfa_finish: State) -> BTreeSet<dfa::State> {
+        let mut v = BTreeSet::new();
         for (nfa_states, dfa_state) in &self.states {
             if nfa_states.contains(&nfa_finish) {
-                v.push(*dfa_state);
+                v.insert(*dfa_state);
             }
         }
         v
