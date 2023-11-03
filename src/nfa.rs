@@ -155,10 +155,6 @@ impl Default for DfaStateProvider {
 }
 
 impl DfaStateProvider {
-    pub fn has(&self, nfa_state_set: &BTreeSet<State>) -> bool {
-        self.states.contains_key(nfa_state_set)
-    }
-
     pub fn to_dfa_state(&mut self, nfa_state_set: BTreeSet<State>) -> dfa::State {
         if let Some(state) = self.states.get(&nfa_state_set) {
             *state
