@@ -86,4 +86,22 @@ impl Dfa {
 
         current
     }
+
+    pub fn print_for_kadai(&self) {
+        for rule in &self.rules {
+            if rule.alphabet == '0' {
+                print!("{}:", rule.from);
+                if self.finish_states.contains(&rule.from) {
+                    print!("f");
+                } else {
+                    print!("c");
+                }
+                print!(",{}", rule.to);
+            } else if rule.alphabet == '1' {
+                println!(",{}", rule.to);
+            } else {
+                panic!("aaa");
+            }
+        }
+    }
 }

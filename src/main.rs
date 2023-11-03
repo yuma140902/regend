@@ -85,4 +85,8 @@ fn main() {
     for test_input in test_inputs {
         dfa.run(test_input);
     }
+
+    println!();
+    println!("KADAI");
+    dfa.print_for_kadai();
 }
