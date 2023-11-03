@@ -1,65 +1,16 @@
 use std::collections::BTreeSet;
 
-use alien::{
-    nfa::GlobalEnv,
-    regexpr::{cat_char, RegExpr::*},
-};
+use alien::{nfa::GlobalEnv, parser};
 
 fn main() {
-    /*let reg = Or(vec![
-        cat_char("00"),
-        cat_char("11"),
-        Repeat(Box::new(Char('1'))),
-    ]);*/
-
-    let reg = Cat(vec![
-        Repeat(Box::new(Or(vec![cat_char("00"), cat_char("11")]))),
-        Or(vec![Char('0'), Char('1'), Empty]),
-        Repeat(Box::new(Or(vec![cat_char("00"), cat_char("11")]))),
-    ]);
-
-    let reg = Or(vec![
-        Cat(vec![
-            Or(vec![cat_char("00"), cat_char("11")]),
-            Repeat(Box::new(Or(vec![Char('0'), Char('1')]))),
-        ]),
-        Cat(vec![
-            Repeat(Box::new(Or(vec![Char('0'), Char('1')]))),
-            Or(vec![cat_char("00"), cat_char("11")]),
-        ]),
-    ]);
-
-    let reg = Or(vec![
-        Cat(vec![
-            cat_char("11"),
-            Repeat(Box::new(Or(vec![cat_char("11"), Char('0')]))),
-        ]),
-        Cat(vec![
-            Repeat(Box::new(Or(vec![cat_char("11"), Char('0')]))),
-            cat_char("11"),
-        ]),
-        Cat(vec![
-            Repeat(Box::new(Or(vec![cat_char("00"), Char('1')]))),
-            cat_char("00"),
-        ]),
-    ]);
+    let reg = parser::parse_expr_until_end("11(11|0)*|(11|0)*11|(00|1)*00")
+        .unwrap()
+        .1;
 
     let test_inputs = vec![
         "110000", "00", "0000100", "1111", "1101111", "1101100", "000000", "1001100", "001100",
         "11100", "1100110", "0010000", "110", "11110", "10000",
     ];
-
-    /*let reg = Cat(vec![
-        Or(vec![
-            Repeat(Box::new(cat_char("00"))),
-            Repeat(Box::new(cat_char("11"))),
-        ]),
-        Or(vec![Char('0'), Char('1'), Empty]),
-        Or(vec![
-            Repeat(Box::new(cat_char("00"))),
-            Repeat(Box::new(cat_char("11"))),
-        ]),
-    ]);*/
 
     let mut env = GlobalEnv::default();
     let nfa = reg.to_nfa(&mut env);

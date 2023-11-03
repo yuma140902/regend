@@ -2,6 +2,17 @@ use std::fmt::Display;
 
 use crate::nfa::{GlobalEnv, Nfa, Rule};
 
+///
+/// # 正規表現のEBNF
+///
+/// ```txt
+/// <expr> := <orterm> [ '|' <orterm> ]*
+/// <orterm> := <catterm> [ <catterm> ]*
+/// <catterm> := <repterm> [ '*' ]?
+/// <repterm> := '(' <expr> ')'
+///            | 任意の1文字
+///            | φ
+/// ```
 #[derive(Debug)]
 pub enum RegExpr {
     Empty,
@@ -145,29 +156,31 @@ impl RegExpr {
 
 impl Display for RegExpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        const T: &str = "\x1b[2m";
+        const R: &str = "\x1b[0m";
         match self {
-            RegExpr::Empty => f.write_str("ε")?,
+            RegExpr::Empty => f.write_fmt(format_args!("{T}ε{R}"))?,
             RegExpr::Char(c) => f.write_fmt(format_args!("{}", c))?,
             RegExpr::Cat(v) => {
-                f.write_str("(")?;
+                f.write_fmt(format_args!("{T}({R}"))?;
                 for r in v {
                     f.write_fmt(format_args!("{}", r))?;
                 }
-                f.write_str(")")?;
+                f.write_fmt(format_args!("{T}){R}"))?;
             }
             RegExpr::Or(v) => {
-                f.write_str("(")?;
+                f.write_fmt(format_args!("{T}({R}"))?;
                 f.write_fmt(format_args!(
                     "{}",
                     v.iter()
                         .map(|r| format!("{}", r))
                         .collect::<Vec<_>>()
-                        .join("|")
+                        .join(&format!("{T}|{R}"))
                 ))?;
-                f.write_str(")")?;
+                f.write_fmt(format_args!("{T}){R}"))?;
             }
             RegExpr::Repeat(r) => {
-                f.write_fmt(format_args!("({})*", r))?;
+                f.write_fmt(format_args!("{T}({R}{r}{T})*{R}"))?;
             }
         }
         Ok(())
