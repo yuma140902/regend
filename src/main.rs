@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use alien::{nfa::GlobalEnv, parser};
+use regnd::{nfa::GlobalEnv, parser};
 
 fn main() {
     let reg = parser::parse_expr_until_end("11(11|0)*|(11|0)*11|(00|1)*00")
