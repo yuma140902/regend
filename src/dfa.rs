@@ -51,3 +51,39 @@ impl Display for Dfa {
         Ok(())
     }
 }
+
+impl Dfa {
+    pub fn run(&self, input: &str) -> State {
+        print!("\"{}\"\t", input);
+        let mut current = self.start;
+        print!("{}", current);
+
+        for c in input.chars() {
+            let mut rule = None;
+            for r in &self.rules {
+                if r.alphabet == c && r.from == current {
+                    rule = Some(r);
+                    break;
+                }
+            }
+            if let Some(rule) = rule {
+                current = rule.to;
+                print!("->{}", current);
+            } else {
+                panic!("no rule from={}, alphabet={}. DFA is invalid.", current, c);
+            }
+        }
+
+        const GREEN: &str = "\x1b[32m";
+        const RED: &str = "\x1b[31m";
+        const RESET: &str = "\x1b[0m";
+
+        if self.finish_states.contains(&current) {
+            println!("\t{GREEN}Accepted{RESET}");
+        } else {
+            println!("\t{RED}Rejected{RESET}");
+        }
+
+        current
+    }
+}

@@ -29,6 +29,26 @@ fn main() {
         ]),
     ]);
 
+    let reg = Or(vec![
+        Cat(vec![
+            cat_char("11"),
+            Repeat(Box::new(Or(vec![cat_char("11"), Char('0')]))),
+        ]),
+        Cat(vec![
+            Repeat(Box::new(Or(vec![cat_char("11"), Char('0')]))),
+            cat_char("11"),
+        ]),
+        Cat(vec![
+            Repeat(Box::new(Or(vec![cat_char("00"), Char('1')]))),
+            cat_char("00"),
+        ]),
+    ]);
+
+    let test_inputs = vec![
+        "110000", "00", "0000100", "1111", "1101111", "1101100", "000000", "1001100", "001100",
+        "11100", "1100110", "0010000", "110", "11110", "10000",
+    ];
+
     /*let reg = Cat(vec![
         Or(vec![
             Repeat(Box::new(cat_char("00"))),
@@ -59,4 +79,10 @@ fn main() {
     let dfa = nfa.to_dfa(&['0', '1']);
     println!();
     println!("{dfa}");
+
+    println!();
+    println!("Running tests...");
+    for test_input in test_inputs {
+        dfa.run(test_input);
+    }
 }
