@@ -1,12 +1,11 @@
 use std::{
-    collections::BTreeSet,
     fs::File,
     io::{BufRead, BufReader},
     path::PathBuf,
 };
 
 use clap::Parser;
-use regnd::{nfa::GlobalEnv, parser};
+use regend::{nfa::GlobalEnv, parser};
 
 #[derive(Debug, Parser)]
 struct Args {
