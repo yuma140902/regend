@@ -152,6 +152,28 @@ impl RegExpr {
             }
         }
     }
+
+    pub fn get_alphabets(&self) -> Vec<char> {
+        let mut v = vec![];
+        match self {
+            RegExpr::Empty => {}
+            RegExpr::Char(c) => v.push(*c),
+            RegExpr::Cat(rs) => {
+                for r in rs {
+                    v.append(&mut r.get_alphabets());
+                }
+            }
+            RegExpr::Or(rs) => {
+                for r in rs {
+                    v.append(&mut r.get_alphabets());
+                }
+            }
+            RegExpr::Repeat(r) => {
+                v.append(&mut r.get_alphabets());
+            }
+        }
+        v
+    }
 }
 
 impl Display for RegExpr {

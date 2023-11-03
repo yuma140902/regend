@@ -32,7 +32,7 @@ fn main() {
     println!("regexpr: {reg}");
     println!("{nfa}");
 
-    let dfa = nfa.to_dfa(&['0', '1']);
+    let dfa = nfa.to_dfa(&reg.get_alphabets());
     println!();
     println!("{dfa}");
 
