@@ -1,43 +1,56 @@
-use std::collections::BTreeSet;
+use std::{
+    collections::BTreeSet,
+    fs::File,
+    io::{BufRead, BufReader},
+    path::PathBuf,
+};
 
+use clap::Parser;
 use regnd::{nfa::GlobalEnv, parser};
 
-fn main() {
-    let reg = parser::parse_expr_until_end("11(11|0)*|(11|0)*11|(00|1)*00")
-        .unwrap()
-        .1;
+#[derive(Debug, Parser)]
+struct Args {
+    /// 正規表現
+    reg: String,
 
-    let test_inputs = vec![
-        "110000", "00", "0000100", "1111", "1101111", "1101100", "000000", "1001100", "001100",
-        "11100", "1100110", "0010000", "110", "11110", "10000",
-    ];
+    #[clap(short = 't')]
+    test: Option<PathBuf>,
+
+    #[clap(short = 'k')]
+    table: bool,
+}
+
+fn main() {
+    let args = Args::parse();
+
+    let reg = match parser::parse_expr_until_end(&args.reg) {
+        Ok(reg) => reg.1,
+        Err(e) => panic!("正規表現のパースエラー: {}", e),
+    };
 
     let mut env = GlobalEnv::default();
     let nfa = reg.to_nfa(&mut env);
     println!("regexpr: {reg}");
     println!("{nfa}");
-    println!("edge(1, ε) = {:?}", nfa.edge(1, 'ε'));
-    {
-        let mut t = BTreeSet::new();
-        t.insert(1);
-        println!("closure(1) = {:?}", nfa.closure(&t));
-        println!(
-            "DFAedge(closure(1), '0') = {:?}",
-            nfa.dfa_edge(&nfa.closure(&t), '0')
-        );
-    }
 
     let dfa = nfa.to_dfa(&['0', '1']);
     println!();
     println!("{dfa}");
 
-    println!();
-    println!("Running tests...");
-    for test_input in test_inputs {
-        dfa.run(test_input);
+    if let Some(test_file) = args.test {
+        println!();
+        println!("Running tests...");
+        let f =
+            File::open(&test_file).expect(&format!("ファイル {} が開けない", test_file.display()));
+        let reader = BufReader::new(f);
+        for line in reader.lines() {
+            dfa.run(&line.expect(&format!("ファイル {} を読み込めない", test_file.display())));
+        }
     }
 
-    println!();
-    println!("KADAI");
-    dfa.print_for_kadai();
+    if args.table {
+        println!();
+        println!("TABLE");
+        dfa.print_table();
+    }
 }

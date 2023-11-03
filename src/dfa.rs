@@ -87,7 +87,7 @@ impl Dfa {
         current
     }
 
-    pub fn print_for_kadai(&self) {
+    pub fn print_table(&self) {
         for rule in &self.rules {
             if rule.alphabet == '0' {
                 print!("{}:", rule.from);
