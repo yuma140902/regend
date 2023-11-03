@@ -1,17 +1,17 @@
-# regnd
+# regend
 
 入力された正規表現をNFA、DFAに変換変換します。
 
 ## インストール方法
 
 ```sh
-cargo install --git https://github.com/yuma140902/regnd/
+cargo install --git https://github.com/yuma140902/regend/
 ```
 
 ## 使用方法
 
 ```sh
-regnd 正規表現
+regend 正規表現
 ```
 
 ## 正規表現の文法
@@ -42,4 +42,4 @@ regnd 正規表現
 
 1. `hoge.txt`にテストしたい文字列を入力します。複数テストする場合は改行して1行に1つの文字列を書きます。
 
-2. `regnd 正規表現 -t hoge.txt`を実行します。受理されたら緑色で`Accepted`、不受理なら赤色で`Rejected`と表示されます。
+2. `regend 正規表現 -t hoge.txt`を実行します。受理されたら緑色で`Accepted`、不受理なら赤色で`Rejected`と表示されます。
