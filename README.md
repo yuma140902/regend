@@ -2,8 +2,7 @@
 
 入力された正規表現をNFA、DFAに変換変換します。
 
-![image](https://github.com/yuma140902/regend/assets/23431077/668dd06e-7406-4716-be77-23eba4bd96c7)
-
+![image](https://github.com/yuma140902/regend/assets/23431077/3762e771-07e0-4183-9a0d-a5131ac622bd)
 
 ## インストール方法
 
