@@ -7,6 +7,7 @@ use nom::{
     sequence::{delimited, pair, preceded, terminated},
     IResult, Parser,
 };
+use wasm_bindgen::prelude::*;
 
 use crate::regexpr::RegExpr;
 

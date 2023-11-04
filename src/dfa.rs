@@ -1,8 +1,11 @@
 use std::{collections::BTreeSet, fmt::Display};
 
+use wasm_bindgen::prelude::*;
+
 pub type State = i32;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[wasm_bindgen]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct Rule {
     pub from: State,
     pub alphabet: char,
