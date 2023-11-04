@@ -47,6 +47,8 @@ fn main() {
         }
     }
 
+    dbg!(dfa.to_table());
+
     if args.table {
         println!();
         println!("TABLE");

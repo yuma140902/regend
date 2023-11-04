@@ -1,4 +1,7 @@
-use std::{collections::BTreeSet, fmt::Display};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt::Display,
+};
 
 pub type State = i32;
 
@@ -85,6 +88,25 @@ impl Dfa {
         }
 
         current
+    }
+
+    pub fn to_table(&self) -> BTreeMap<State, (bool, BTreeMap<char, State>)> {
+        let mut table: BTreeMap<State, (bool, BTreeMap<char, State>)> = BTreeMap::new();
+        for rule in &self.rules {
+            if let Some((_, row)) = table.get_mut(&rule.from) {
+                row.insert(rule.alphabet, rule.to);
+            } else {
+                let mut row = BTreeMap::new();
+                let is_finish = self.finish_states.contains(&rule.from);
+                row.insert(rule.alphabet, rule.to);
+                table.insert(rule.from, (is_finish, row));
+            }
+        }
+        table
+    }
+
+    pub fn minimize(&self) -> Self {
+        todo!()
     }
 
     pub fn print_table(&self) {
