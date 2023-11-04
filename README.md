@@ -10,6 +10,8 @@
 cargo install --git https://github.com/yuma140902/regend/
 ```
 
+Webフロントエンドもあります: [Regend WebUI](https://yuma14.net/regend-webui/)
+
 ## 使用方法
 
 ```sh
