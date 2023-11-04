@@ -1,5 +1,4 @@
 use std::{
-    collections::BTreeMap,
     fs::File,
     io::{BufRead, BufReader},
     path::PathBuf,
