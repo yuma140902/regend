@@ -5,7 +5,7 @@ use std::{
 };
 
 use clap::Parser;
-use regend::{nfa::GlobalEnv, parser};
+use regend::{dfa::Dfa, nfa::GlobalEnv, parser};
 
 #[derive(Debug, Parser)]
 struct Args {
@@ -49,9 +49,16 @@ fn main() {
 
     dbg!(dfa.to_table());
 
+    let minimal_dfa = dfa.minimize(&mut env);
+
+    println!("{minimal_dfa}");
+
     if args.table {
         println!();
         println!("TABLE");
-        dfa.print_table();
+        Dfa::print_table(&dfa.to_table());
+        println!();
+        println!("TABLE");
+        Dfa::print_table(&minimal_dfa.to_table());
     }
 }
