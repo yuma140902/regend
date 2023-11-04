@@ -3,6 +3,8 @@ use std::{
     fmt::Display,
 };
 
+use itertools::Itertools;
+
 pub type State = i32;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -110,20 +112,11 @@ impl Dfa {
     }
 
     pub fn print_table(&self) {
-        for rule in &self.rules {
-            if rule.alphabet == '0' {
-                print!("{}:", rule.from);
-                if self.finish_states.contains(&rule.from) {
-                    print!("f");
-                } else {
-                    print!("c");
-                }
-                print!(",{}", rule.to);
-            } else if rule.alphabet == '1' {
-                println!(",{}", rule.to);
-            } else {
-                panic!("aaa");
-            }
+        let table = self.to_table();
+        for (state, (is_finish, row)) in table {
+            print!("{state}:");
+            print!("{},", if is_finish { "f" } else { "c" });
+            println!("{}", row.values().map(|s| format!("{s}")).join(","));
         }
     }
 }
