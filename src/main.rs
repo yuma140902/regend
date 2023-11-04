@@ -5,7 +5,7 @@ use std::{
 };
 
 use clap::Parser;
-use regend::{nfa::GlobalEnv, parser};
+use regend::{dfa::Dfa, nfa::GlobalEnv, parser};
 
 #[derive(Debug, Parser)]
 struct Args {
@@ -50,6 +50,6 @@ fn main() {
     if args.table {
         println!();
         println!("TABLE");
-        dfa.print_table();
+        Dfa::print_table(&dfa.to_table());
     }
 }

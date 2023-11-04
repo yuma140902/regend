@@ -1,4 +1,11 @@
-use std::{collections::BTreeSet, fmt::Display};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt::Display,
+};
+
+use itertools::Itertools;
+
+use wasm_bindgen::prelude::*;
 
 use wasm_bindgen::prelude::*;
 
@@ -28,6 +35,8 @@ pub struct Dfa {
     pub rules: BTreeSet<Rule>,
 }
 
+pub type Table = BTreeMap<State, (bool, bool, BTreeMap<char, State>)>;
+
 impl Display for Dfa {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         const UNDERLINE: &str = ""; //"\x1b[4m";
@@ -56,6 +65,38 @@ impl Display for Dfa {
 }
 
 impl Dfa {
+    pub fn from_table(table: &Table) -> Self {
+        let mut start = None;
+        let mut finish_states = BTreeSet::new();
+        let mut rules = BTreeSet::new();
+
+        for (from, (is_finish, is_start, row)) in table {
+            if *is_start {
+                if start.is_some() {
+                    panic!("複数の開始状態がある")
+                }
+                start = Some(*from);
+            }
+            if *is_finish {
+                finish_states.insert(*from);
+            }
+
+            for (alphabet, to) in row {
+                rules.insert(Rule {
+                    from: *from,
+                    alphabet: *alphabet,
+                    to: *to,
+                });
+            }
+        }
+
+        Self {
+            start: start.expect("開始状態がない"),
+            finish_states,
+            rules,
+        }
+    }
+
     pub fn run(&self, input: &str) -> State {
         print!("\"{}\"\t", input);
         let mut current = self.start;
@@ -90,20 +131,35 @@ impl Dfa {
         current
     }
 
-    pub fn print_table(&self) {
+    pub fn to_table(&self) -> Table {
+        let mut table: Table = BTreeMap::new();
         for rule in &self.rules {
-            if rule.alphabet == '0' {
-                print!("{}:", rule.from);
-                if self.finish_states.contains(&rule.from) {
-                    print!("f");
-                } else {
-                    print!("c");
-                }
-                print!(",{}", rule.to);
-            } else if rule.alphabet == '1' {
-                println!(",{}", rule.to);
+            if let Some((_, _, row)) = table.get_mut(&rule.from) {
+                row.insert(rule.alphabet, rule.to);
             } else {
-                panic!("aaa");
+                let mut row = BTreeMap::new();
+                let is_start = rule.from == self.start;
+                let is_finish = self.finish_states.contains(&rule.from);
+                row.insert(rule.alphabet, rule.to);
+                table.insert(rule.from, (is_finish, is_start, row));
+            }
+        }
+        table
+    }
+
+    pub fn print_table(table: &Table) {
+        for (state, (is_finish, is_start, row)) in table {
+            if *is_start {
+                print!("{state}:");
+                print!("{},", if *is_finish { "f" } else { "c" });
+                println!("{}", row.values().map(|s| format!("{s}")).join(","));
+            }
+        }
+        for (state, (is_finish, is_start, row)) in table {
+            if !is_start {
+                print!("{state}:");
+                print!("{},", if *is_finish { "f" } else { "c" });
+                println!("{}", row.values().map(|s| format!("{s}")).join(","));
             }
         }
     }
