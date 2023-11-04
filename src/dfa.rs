@@ -7,8 +7,6 @@ use itertools::Itertools;
 
 use wasm_bindgen::prelude::*;
 
-use wasm_bindgen::prelude::*;
-
 pub type State = i32;
 
 #[wasm_bindgen]
