@@ -5,8 +5,6 @@ use std::{
 
 use itertools::Itertools;
 
-use crate::nfa::GlobalEnv;
-
 pub type State = i32;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
@@ -144,7 +142,7 @@ impl Dfa {
         table
     }
 
-    pub fn minimize(&self, env: &mut GlobalEnv) -> Self {
+    pub fn minimize(&self) -> Self {
         println!("minimizing...");
         let mut table = self.to_table();
 
@@ -160,7 +158,11 @@ impl Dfa {
             {
                 // グループが複数要素から構成されるなら、それらをまとめる
                 if rows.len() >= 1 {
-                    let new_state = env.new_state();
+                    let new_state = rows
+                        .iter()
+                        .map(|(state, _)| *state)
+                        .min()
+                        .expect("最小のStateを見つけられない");
                     for (original_state, _) in rows {
                         state_migrations.insert(original_state, new_state);
                         println!("replace {original_state} -> {new_state}");

@@ -49,7 +49,7 @@ fn main() {
 
     dbg!(dfa.to_table());
 
-    let minimal_dfa = dfa.minimize(&mut env);
+    let minimal_dfa = dfa.minimize();
 
     println!("{minimal_dfa}");
 
