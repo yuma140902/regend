@@ -142,68 +142,6 @@ impl Dfa {
         table
     }
 
-    pub fn minimize(&self) -> Self {
-        println!("minimizing...");
-        let mut table = self.to_table();
-
-        loop {
-            let prev_rows = table.len();
-            let mut state_migrations = HashMap::new();
-            // 置き換えが必要なstateを探してstate_migrationsに登録していく
-            for ((_is_finish, _common_row), rows) in table
-                .clone()
-                .into_iter()
-                // is_finishの値と各アルファベットに対する行き先がすべて同じものをまとめる
-                .into_group_map_by(|(_state, (is_finish, _, row))| (*is_finish, row.clone()))
-            {
-                // グループが複数要素から構成されるなら、それらをまとめる
-                if rows.len() >= 1 {
-                    let new_state = rows
-                        .iter()
-                        .map(|(state, _)| *state)
-                        .min()
-                        .expect("最小のStateを見つけられない");
-                    for (original_state, _) in rows {
-                        state_migrations.insert(original_state, new_state);
-                        println!("replace {original_state} -> {new_state}");
-                    }
-                }
-            }
-
-            let mut new_table = BTreeMap::new();
-            // state_migrationsに従ってtableを更新する
-            for (old_state, (is_finish, is_start, row)) in table {
-                if let Some(new_state) = state_migrations.get(&old_state) {
-                    // old_stateが更新対象であるとき
-                    // state_migrationsに従ってrowを更新する
-                    let mut new_row = BTreeMap::new();
-                    for (alphabet, to) in row {
-                        if to == old_state {
-                            // toが更新対象であるとき
-                            new_row.insert(alphabet, *new_state);
-                        } else {
-                            new_row.insert(alphabet, to);
-                        }
-                    }
-                    new_table.insert(*new_state, (is_finish, is_start, new_row));
-                } else {
-                    new_table.insert(old_state, (is_finish, is_start, row));
-                }
-            }
-
-            let current_rows = new_table.len();
-            println!("current_rows: {current_rows}");
-            table = new_table;
-
-            // tableの行数が減らなくなったらループを抜ける
-            if prev_rows == current_rows {
-                break;
-            }
-        }
-
-        Self::from_table(&table)
-    }
-
     pub fn print_table(table: &Table) {
         for (state, (is_finish, is_start, row)) in table {
             if *is_start {
