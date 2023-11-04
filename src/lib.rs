@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use itertools::Itertools;
 use nfa::GlobalEnv;
 use wasm_bindgen::prelude::*;
 
@@ -27,7 +28,7 @@ pub fn str_to_dfa(s: &str) -> Dfa {
 pub struct Dfa {
     pub start: dfa::State,
     pub states: Vec<DfaState>,
-    pub rules: Vec<dfa::Rule>,
+    pub rules: Vec<DfaRule>,
 }
 
 #[wasm_bindgen]
@@ -35,6 +36,14 @@ pub struct Dfa {
 pub struct DfaState {
     pub id: dfa::State,
     pub finish: bool,
+}
+
+#[wasm_bindgen(getter_with_clone)]
+#[derive(Clone)]
+pub struct DfaRule {
+    pub from: dfa::State,
+    pub to: dfa::State,
+    pub alphabets: String,
 }
 
 impl From<dfa::Dfa> for Dfa {
@@ -52,7 +61,18 @@ impl From<dfa::Dfa> for Dfa {
         states.extend(states_set);
 
         let mut rules = Vec::new();
-        rules.extend(value.rules);
+        for ((from, to), rs) in value
+            .rules
+            .into_iter()
+            .into_group_map_by(|r| (r.from, r.to))
+        {
+            let alphabets: String = rs.iter().map(|r| r.alphabet).collect();
+            rules.push(DfaRule {
+                from,
+                to,
+                alphabets,
+            });
+        }
 
         Self {
             start,
