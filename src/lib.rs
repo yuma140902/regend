@@ -21,8 +21,7 @@ pub fn str_to_dfa(s: &str) -> Dfa {
     let mut env = GlobalEnv::default();
     let nfa = regex.to_nfa(&mut env);
     let dfa = nfa.to_dfa(&regex.get_alphabets());
-    let mini_dfa = dfa.minimize();
-    mini_dfa.into()
+    dfa.into()
 }
 
 #[wasm_bindgen(getter_with_clone)]
