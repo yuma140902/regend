@@ -36,15 +36,10 @@ impl RegExpr {
             RegExpr::Empty => {
                 let start = env.new_state();
                 let finish = env.new_state();
-                let rules = vec![Rule {
-                    from: start,
-                    to: finish,
-                    alphabet: 'ε',
-                }];
                 Nfa {
                     start,
                     finish,
-                    rules,
+                    rules: vec![],
                 }
             }
             RegExpr::Char(c) => {
