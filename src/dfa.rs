@@ -5,8 +5,11 @@ use std::{
 
 use itertools::Itertools;
 
+use wasm_bindgen::prelude::*;
+
 pub type State = i32;
 
+#[wasm_bindgen]
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct Rule {
     pub from: State,

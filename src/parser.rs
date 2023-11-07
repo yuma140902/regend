@@ -1,3 +1,4 @@
+use crate::regexpr::RegExpr;
 use nom::{
     branch::alt,
     character::complete::{char, multispace0, one_of},
@@ -7,8 +8,6 @@ use nom::{
     sequence::{delimited, pair, preceded, terminated},
     IResult, Parser,
 };
-
-use crate::regexpr::RegExpr;
 
 pub fn parse_expr_until_end(input: &str) -> IResult<&str, RegExpr> {
     terminated(parse_expr, eof)(input)
